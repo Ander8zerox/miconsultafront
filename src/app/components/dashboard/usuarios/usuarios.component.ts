@@ -1,32 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Usuario } from 'src/app/interfaces/usuario';
+import { UsuarioService } from 'src/app/services/usuario.service';
 
-
-const listUsuarios: Usuario[] = [
-  {usuario: "jeco", nombre: 'Juan', apellido: "Jimenez", sexo: 'Masculino'},
-  {usuario: "jdaven", nombre: 'Pedro', apellido: "Pueblo", sexo: 'Masculino'},
-  {usuario: "mdrival", nombre: 'Pablo', apellido: "Paz", sexo: 'Masculino'},
-  {usuario: "pasa2", nombre: 'David', apellido: "Rosas", sexo: 'Masculino'},
-  {usuario: "2pasare", nombre: 'Jorge', apellido: "Laudo", sexo: 'Masculino'},
-  {usuario: "jeco", nombre: 'Juan', apellido: "Jimenez", sexo: 'Masculino'},
-  {usuario: "jdaven", nombre: 'Pedro', apellido: "Pueblo", sexo: 'Masculino'},
-  {usuario: "mdrival", nombre: 'Pablo', apellido: "Paz", sexo: 'Masculino'},
-  {usuario: "pasa2", nombre: 'David', apellido: "Rosas", sexo: 'Masculino'},
-  {usuario: "2pasare", nombre: 'Jorge', apellido: "Laudo", sexo: 'Masculino'},
-  {usuario: "jeco", nombre: 'Juan', apellido: "Jimenez", sexo: 'Masculino'},
-  {usuario: "jdaven", nombre: 'Pedro', apellido: "Pueblo", sexo: 'Masculino'},
-  {usuario: "mdrival", nombre: 'Pablo', apellido: "Paz", sexo: 'Masculino'},
-  {usuario: "pasa2", nombre: 'David', apellido: "Rosas", sexo: 'Masculino'},
-  {usuario: "2pasare", nombre: 'Jorge', apellido: "Laudo", sexo: 'Masculino'},
-  {usuario: "jeco", nombre: 'Juan', apellido: "Jimenez", sexo: 'Masculino'},
-  {usuario: "jdaven", nombre: 'Pedro', apellido: "Pueblo", sexo: 'Masculino'},
-  {usuario: "mdrival", nombre: 'Pablo', apellido: "Paz", sexo: 'Masculino'},
-  {usuario: "pasa2", nombre: 'David', apellido: "Rosas", sexo: 'Masculino'},
-  {usuario: "xxxxxxx", nombre: 'Jorge', apellido: "Laudo", sexo: 'Masculino'}
-];
 
 @Component({
   selector: 'app-usuarios',
@@ -35,15 +14,25 @@ const listUsuarios: Usuario[] = [
 })
 export class UsuariosComponent implements OnInit {
 
+  listUsuarios: Usuario[]=[];
+
   displayedColumns: string[] = ['usuario', 'nombre', 'apellido', 'sexo','acciones'];
-  dataSource = new MatTableDataSource(listUsuarios);
+  dataSource!: MatTableDataSource<any>;
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   
-  constructor() { }
+  constructor(private usuarioService: UsuarioService,private _snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
+    this.cargarUsuarios();
   }
+
+  cargarUsuarios(){
+    this.listUsuarios = this.usuarioService.getUsuario();
+    this.dataSource= new MatTableDataSource(this.listUsuarios);
+  }
+
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -53,5 +42,18 @@ export class UsuariosComponent implements OnInit {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
+
+  eliminarUsuario(index: number){
+    console.log(index);
+    this.usuarioService.eliminarUsuario(index);
+    this.cargarUsuarios();
+
+    this._snackBar.open('Usuario eliminado con exito','',{
+      duration:1500,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    })
+  }
+
 
 }
